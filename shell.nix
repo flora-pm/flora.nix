@@ -6,87 +6,64 @@
 }:
 let
   sources = import ./npins;
-
   pkgs = import sources."nixpkgs" { };
-  inherit (pkgs) lib;
-
-  ghc9102-pin = import (pkgs.fetchFromGitHub {
-    owner = "nixos";
-    repo = "nixpkgs";
-    rev = "7282cb574e0607e65224d33be8241eae7cfe0979";
-    hash = "sha256-hYKMs3ilp09anGO7xzfGs3JqEgUqFMnZ8GMAqI6/k04=";
-  }) { };
 in
-pkgs.mkShell (
-  let
-    libs = with pkgs; [
-      zlib
-      libpq
-      libsodium
-      gperftools
-      libunwind
-    ];
+let
+  inherit (pkgs) lib;
+  inherit (pkgs) haskell haskellPackages;
+  hlib = pkgs.haskell.lib;
+in
+let
+  assertVersion =
+    expectedVersion: drv:
+    lib.throwIfNot (lib.getVersion drv == expectedVersion) ''
+      Want ${lib.getName drv} ${expectedVersion}, but got ${lib.getVersion drv}.
+    '' drv;
+in
+let
+  libs = with pkgs; [
+    zlib
+    libpq
+    libsodium
+    gperftools
+    libunwind
+  ];
+in
+pkgs.mkShell {
+  name = "flora";
 
-    hlib = pkgs.haskell.lib;
+  env.LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath libs;
 
-    callHackage =
-      {
-        haskellPackages ? pkgs.haskellPackages,
-        name,
-        version,
-      }:
-      lib.pipe (haskellPackages.callHackage name version { }) [
-        hlib.justStaticExecutables
-        hlib.dontCheck
-        hlib.doJailbreak
-      ];
+  packages = [
+    pkgs.npins
 
-    allowGhcReference =
-      drv:
-      pkgs.haskell.lib.overrideCabal drv (_: {
-        disallowGhcReference = false;
-      });
-  in
-  {
-    name = "flora";
-    packages =
-      with pkgs;
-      # These don't build directly and need to be pinned
-      [
-        (callHackage {
-          name = "postgresql-migration";
-          version = "0.2.1.8";
-        })
+    pkgs.haskellPackages.cabal-gild
+    pkgs.haskellPackages.cabal-install
+    pkgs.haskell.compiler.ghc9103
 
-        haskellPackages.cabal-gild
-        haskellPackages.cabal-install
-        haskellPackages.ghc
+    pkgs.yarn
 
-        yarn
-
-        pkg-config
-        esbuild
-        changelog-d
-      ]
-      ++ lib.optional withFourmolu (callHackage {
-        name = "fourmolu";
-        version = "0.18.0.0";
-        haskellPackages = ghc9102-pin.haskell.packages.ghc912;
-      })
-      ++ lib.optionals withHlint [
-        (callHackage {
-          name = "hlint";
-          version = "3.10";
-        })
-        (allowGhcReference (callHackage {
-          name = "apply-refact";
-          version = "0.15.0.0";
-          haskellPackages = ghc9102-pin.haskell.packages.ghc912;
-        }))
-      ]
-      ++ lib.optional withHLS haskellPackages.haskell-language-server
-      ++ libs;
-
-    LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath libs;
-  }
-)
+    pkgs.pkg-config
+    pkgs.esbuild
+    pkgs.changelog-d
+  ]
+  ++ lib.optionals withFourmolu [
+    (
+      let
+        fourmolu = haskellPackages.callCabal2nix "fourmolu" sources.fourmolu {
+          Cabal-syntax = haskellPackages.Cabal-syntax_3_16_1_0;
+          ghc-lib-parser = haskellPackages.ghc-lib-parser_9_14_1_20251220;
+        };
+      in
+      hlib.dontCheck (hlib.justStaticExecutables fourmolu)
+    )
+  ]
+  ++ lib.optionals withHlint [
+    (assertVersion "3.10" haskellPackages.hlint)
+    (assertVersion "0.15.0.0" haskell.packages.ghc912.apply-refact)
+  ]
+  ++ lib.optionals withHLS [
+    haskell.compilers.ghc9103.haskell-language-server
+  ]
+  ++ libs;
+}
