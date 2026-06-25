@@ -2,7 +2,7 @@
   # These options can take some time to build
   withFourmolu ? true,
   withHlint ? true,
-  withHLS ? false,
+  withHLS ? true,
 }:
 let
   sources = import ./npins;
@@ -63,7 +63,7 @@ pkgs.mkShell {
     (assertVersion "0.15.0.0" haskell.packages.ghc912.apply-refact)
   ]
   ++ lib.optionals withHLS [
-    haskell.compilers.ghc9103.haskell-language-server
+    haskell.packages.ghc9103.haskell-language-server
   ]
   ++ libs;
 }

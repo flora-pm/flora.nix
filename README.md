@@ -7,7 +7,7 @@ Packaging flora in nix is a non-goal at the moment.
 
 ## Usage
 ```bash
-nix-shell ./path/to/flora.nix --argstr withHLS true
+nix-shell ./path/to/flora.nix --arg withHLS true
 ```
 
 See shell.nix for the complete list of argument.
