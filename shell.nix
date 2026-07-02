@@ -42,6 +42,7 @@ pkgs.mkShell {
     pkgs.haskell.compiler.ghc9103
 
     pkgs.yarn
+    pkgs.stylelint
 
     pkgs.pkg-config
     pkgs.esbuild
