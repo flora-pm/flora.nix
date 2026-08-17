@@ -27,6 +27,7 @@ let
     libsodium
     gperftools
     libunwind
+    liburing
   ];
 in
 pkgs.mkShell {
