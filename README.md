@@ -11,3 +11,13 @@ nix-shell ./path/to/flora.nix --arg withHLS true
 ```
 
 See shell.nix for the complete list of argument.
+
+Quick and dirty way to use the NixOS module:
+```nix
+imports = [
+  # Replace the commit with a pin you want.
+  (builtins.fetchTarball {
+    url = "https://github.com/flora-pm/flora.nix/archive/993e0ddb96a06d6cd8f99324cdc75f931ce36d02.tar.gz";
+  } + "/nixos-module/postgresql.nix")
+];
+```

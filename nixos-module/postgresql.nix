@@ -1,8 +1,8 @@
-{
-  pkgs,
-  lib,
-  ...
-}:
+{ lib, ... }:
+let
+  sources = import ../npins;
+  pkgs = import sources.nixpkgs {};
+in
 {
   assertions = [
     {
