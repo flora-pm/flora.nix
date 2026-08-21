@@ -1,9 +1,17 @@
 # Flora.nix
 
-This repository contains a nix expressions destined to get the tooling for Flora working.
+
+> [!NOTE]
+> This canonical repo has been moved to [codeberg.org/leana8959/flora.nix](https://codeberg.org/leana8959/flora.nix),
+> and will be maintained unofficially.
+>
+> Flora.nix is now in low maintainance mode: if you find something missing, please tell me. I will fix it when I want to.
+> Patches are very welcome.
+
+This repository contains nix expressions destined to get the tooling for Flora working.
 Flora.nix tries to be as up-to-date as possible. If you find something that is outdated, please open an issue and PRs are also very welcomed.
 
-Packaging flora in nix is a non-goal at the moment.
+Packaging flora in nix is a non-goal.
 
 ## Usage
 ```bash
@@ -17,7 +25,7 @@ Quick and dirty way to use the NixOS module:
 imports = [
   # Replace the commit with a pin you want.
   (builtins.fetchTarball {
-    url = "https://github.com/flora-pm/flora.nix/archive/993e0ddb96a06d6cd8f99324cdc75f931ce36d02.tar.gz";
+    url = "https://codeberg.org/leana8959/flora.nix/archive/c9cd342006851e179ed91072bb5b0eab7705d943.tar.gz";
   } + "/nixos-module/postgresql.nix")
 ];
 ```
