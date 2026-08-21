@@ -8,7 +8,7 @@
 > Flora.nix is now in low maintainance mode: if you find something missing, please tell me. I will fix it when I want to.
 > Patches are very welcome.
 
-This repository contains a nix expressions destined to get the tooling for Flora working.
+This repository contains nix expressions destined to get the tooling for Flora working.
 Flora.nix tries to be as up-to-date as possible. If you find something that is outdated, please open an issue and PRs are also very welcomed.
 
 Packaging flora in nix is a non-goal.
